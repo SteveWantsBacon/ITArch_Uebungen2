@@ -110,15 +110,21 @@ void configurePWM() {
 int main(void)
 {
 	configureIO();
-	configurePWM();
+	//configurePWM();
+
+	// Das Förderband dreht vorwärts
+	PORTD |= (1 << PORTD7);
+
+	// TODO: Schleichgang aktivieren
 
     while (1) 
     {	
-		// Das Förderband dreht vorwärts
-		PORTD |= (1 << DDD7);
-
 		/*
 		TODO: Implementieren
+		Analogausgang HIGH
+		x ms warten
+		Analogausgang LOW
+		y ms warten
 		*/
 
     }

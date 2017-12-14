@@ -119,6 +119,10 @@ void configureTimer() {
 	TIMSK0 |= (1 << TOIE0);
 }
 
+ISR(TIMER0_OVF_vect) {
+
+}
+
 void runInkrementSensorCheck() {
 	if( /* TODO: Abfrage ob Optischer Inkrementalgeber HIGH */ ) {
 		if(sensorSchwarz == 0) {
