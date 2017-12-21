@@ -97,8 +97,9 @@ void configurePWM() {
 	/*
 	Mittels OCR0A kann das Schaltverhältnis angegeben werden.
 	0x80 entspricht 50%
+	0x55 entspricht ~21,5%
 	*/
-	OCR0A = 0x80;
+	OCR0A = 0x55;
 
 	/* 
 	Timer Counter Control Register 0 A
@@ -110,21 +111,22 @@ void configurePWM() {
 int main(void)
 {
 	configureIO();
-	//configurePWM();
+	configurePWM();
 
 	// Das Förderband dreht vorwärts
 	PORTD |= (1 << PORTD7);
 
-	// TODO: Schleichgang aktivieren
+	// Schleichgang aktivieren
+	PORTB |= (1 << PORTB1);
 
     while (1) 
     {	
+
 		/*
-		TODO: Implementieren
-		Analogausgang HIGH
-		x ms warten
-		Analogausgang LOW
-		y ms warten
+		PORTD |= (1 << PORTD6);
+		_delay_ms(50);
+		PORTD &= ~(1 << PORTD6);
+		_delay_ms(50);
 		*/
 
     }
