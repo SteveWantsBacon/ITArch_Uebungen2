@@ -33,15 +33,15 @@ int main() {
 
 	while(1) {
 		// Das Förderband dreht vorwärts
-		// TODO: DDD7 von PORTD auf HIGH schalten
+		PORTD |= (1 << 7);
 		
 		// Das Programm wird um 1000 ms verzögert
-		// TODO: delay von 1000 ms einfügen
+		_delay_ms(1000);
 
 		// Das Förderband wird angehalten
-		// TODO: DDD7 von PORTD auf LOW schalten
+		PORTD &= ~(1 << 7);
 		
 		// Das Programm wird um 1000 ms verzögert
-		// TODO: delay von 1000 ms einfügen
+		_delay_ms(1000);
 	}
 }
