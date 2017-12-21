@@ -17,6 +17,9 @@ Statuswort, gibt an in welchem Zustand sich die Anlage befindet
 0 = Initial, kein Werkstück eingelegt, Band steht still.
 1 = Werkstück am Bandanfang erkannt und exakt positioniert.
 2 = Band dreht vorwärts, bis Position erkannt ist
+3 = Band verweilt 5 Sekunden 
+4 = Bis Bandende fahren und anschließend 2 Sekunden warten
+5 = Rückwärtsfahrt bis zum Bandanfang
 ...
 */
 volatile uint8_t status = 0;
@@ -120,11 +123,11 @@ void configureTimer() {
 }
 
 ISR(TIMER0_OVF_vect) {
-
+	
 }
 
 void runInkrementSensorCheck() {
-	if( /* TODO: Abfrage ob Optischer Inkrementalgeber HIGH */ ) {
+	if( PIND & (1 << 5) ) {
 		if(sensorSchwarz == 0) {
 			// Flanke erkannt
 			if(PORTD & (1 << PORTD7)) {
@@ -133,7 +136,7 @@ void runInkrementSensorCheck() {
 			}
 			if(PORTB & (1 << PORTB0)) {
 				// Bei Rückwärtsfahrt runterzählen
-				nInkremente++;
+				nInkremente--;												// ++?
 			}
 		}
 		sensorSchwarz = 1;
@@ -146,7 +149,7 @@ void runInkrementSensorCheck() {
 			}
 			if(PORTB & (1 << PORTB0)) {
 				// Bei Rückwärtsfahrt runterzählen
-				nInkremente++;
+				nInkremente--;												// ++?
 			}
 		}
 		sensorSchwarz = 0;
@@ -172,7 +175,7 @@ int main() {
 			if( (PIND & (1 << PIND2)) ) {
 				// Fahre 2 Sekunden vorwärts
 				PORTD |= (1 << PORTD7);
-				_delay_ms(500);
+				_delay_ms(1000);											// 500
 				PORTD &= ~(1 << PORTD7);
 
 				// Fahre Rückwärts bis zum Sensor
@@ -202,15 +205,50 @@ int main() {
 			status = 2;			
 		}
 		if(status == 2) {
-			int mittelposition = /* TODO: Wert ermitteln*/;
+			
+			int mittelposition = 39;
 
 			if(nInkremente >= mittelposition) {
 				// Förderband anhalten
 				PORTD &= ~(1 << PORTD7);
+				status = 3;
 			}
 		}
 		if(status == 3) {
-			/* TODO: Implementieren */
+			// 5 Sekunden warten
+			_delay_ms(5000);
+			// Vorwärtsdrehen
+			PORTD |= (1 << PORTD7);
+
+			status = 4;
+		}
+		if(status == 4) {
+			while(!(PIND & (1 << 3))) {
+				// Warten bis Bandende erreicht ist
+			}
+			PORTD &= ~(1 << PORTD7);
+			// 2 Sekunden warten
+			_delay_ms(2000);
+
+			status = 5;
+		}
+		if(status == 5) {
+			// Fahre Rückwärts bis zum Sensor
+			PORTD &= ~(1 << PORTD7);
+			PORTB |= (1 << PORTB0);
+
+			while( !(PIND & (1 << PIND2)) ) {
+				// Warten bis PIND2 auf HIGH geht
+			}
+
+			// Anhalten
+			PORTD &= ~(1 << PORTD7);
+			PORTB &= ~(1 << PORTB0);
+
+			// 2 Sekunden warten
+			_delay_ms(2000);
+
+			status = 0;
 		}
 	}
 }
